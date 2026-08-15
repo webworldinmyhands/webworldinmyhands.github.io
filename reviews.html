@@ -4,126 +4,179 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Отзывы — FunPay Helper</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz@14..32&display=swap" rel="stylesheet" />
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
         body {
-            font-family: 'Segoe UI', system-ui, sans-serif;
+            font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
             min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
             padding: 24px;
-            background: #0d0d0d;
+            background: #0a0e17;
+            position: relative;
+            overflow: hidden;
+            perspective: 800px;
         }
+
+        #waveCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 0;
+            pointer-events: none;
+            display: block;
+        }
+
         .container {
+            position: relative;
+            z-index: 1;
             max-width: 820px;
             width: 100%;
-            background: rgba(20, 20, 25, 0.92);
+            background: rgba(18, 24, 34, 0.25);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
             padding: 48px 40px;
-            border-radius: 32px;
-            border: 1px solid rgba(255, 255, 255, 0.06);
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
+            border-radius: 40px;
+            border: 1px solid rgba(56, 189, 248, 0.08);
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.4);
+            transition: transform 0.1s ease-out;
+            transform-style: preserve-3d;
+            transform: rotateX(0deg) rotateY(0deg);
+            will-change: transform;
         }
+
+        .container::before {
+            content: '';
+            position: absolute;
+            top: -1px;
+            left: -1px;
+            right: -1px;
+            bottom: -1px;
+            border-radius: 40px;
+            background: linear-gradient(45deg, #38bdf8, #a855f7, #38bdf8);
+            background-size: 300% 300%;
+            z-index: -1;
+            animation: glowBorder 6s ease infinite;
+            opacity: 0.15;
+        }
+
+        @keyframes glowBorder {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
         h1 {
-            font-size: 36px;
-            color: #fff;
+            font-size: 38px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #38bdf8, #a855f7);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
             margin-bottom: 8px;
+            transform: translateZ(20px);
         }
+
         .sub {
             font-size: 18px;
-            color: #bbb;
+            color: #94a3b8;
             margin-bottom: 32px;
+            border-left: 3px solid rgba(56, 189, 248, 0.3);
+            padding-left: 20px;
+            transform: translateZ(10px);
         }
+
         .review {
-            background: rgba(0, 0, 0, 0.3);
+            background: rgba(0, 0, 0, 0.2);
             padding: 16px 20px;
             border-radius: 12px;
             margin-bottom: 14px;
-            border-left: 4px solid #6c63ff;
+            border-left: 4px solid rgba(56, 189, 248, 0.3);
+            transform: translateZ(5px);
         }
+
         .review-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
+
         .reviewer-name {
             font-weight: 600;
             color: #d4d4ff;
         }
+
         .review-date {
             color: #888;
             font-size: 13px;
         }
+
         .stars {
             color: #ffd700;
             font-size: 18px;
             letter-spacing: 2px;
             margin: 6px 0 4px;
         }
+
         .review-text {
             color: #ccc;
             margin: 4px 0 0;
             line-height: 1.5;
         }
+
         .btn-back {
             display: inline-block;
             margin: 20px 0 10px;
-            background: #6c63ff;
-            color: #fff;
+            background: linear-gradient(135deg, #38bdf8, #a855f7);
+            border: none;
+            color: #0b0e14;
             padding: 10px 24px;
             border-radius: 40px;
             text-decoration: none;
-            font-weight: 500;
+            font-weight: 600;
             transition: 0.2s;
+            transform: translateZ(5px);
         }
+
         .btn-back:hover {
-            background: #5a52e0;
+            transform: scale(1.02) translateZ(15px);
+            box-shadow: 0 8px 30px rgba(56, 189, 248, 0.3);
         }
+
         .footer {
-            border-top: 1px solid rgba(255,255,255,0.06);
+            border-top: 1px solid rgba(56, 189, 248, 0.05);
             padding-top: 24px;
             margin-top: 30px;
             font-size: 14px;
-            color: #888;
+            color: #64748b;
             text-align: center;
         }
+
         .footer a {
-            color: #aaa;
+            color: #94a3b8;
             text-decoration: none;
         }
-        .footer a:hover {
-            color: #fff;
-        }
-        .form-container {
-            background: rgba(0, 0, 0, 0.3);
-            border-radius: 16px;
-            padding: 20px;
-            margin: 30px 0;
-            border: 1px solid #2a2a3a;
-        }
-        .form-container iframe {
-            width: 100%;
-            height: 700px;
-            border: none;
-            border-radius: 12px;
-            background: #0d0d0d;
-        }
+        .footer a:hover { color: #38bdf8; }
+
         @media (max-width: 600px) {
-            .container { padding: 20px; }
-            .form-container iframe { height: 800px; }
+            .container { padding: 28px 20px; }
+            h1 { font-size: 28px; }
+            .sub { font-size: 16px; padding-left: 14px; }
         }
     </style>
 </head>
 <body>
-    <div class="container">
+    <canvas id="waveCanvas"></canvas>
+
+    <div class="container" id="card">
         <h1>⭐ Отзывы</h1>
         <p class="sub">Что говорят пользователи о FunPay Helper</p>
 
-        <!-- ОТЗЫВЫ -->
         <div class="review">
             <div class="review-header">
                 <span class="reviewer-name">BloodInMyHand</span>
@@ -169,20 +222,94 @@
             <p class="review-text">Спасибо за такое полезное расширение! Удобно, красиво, надёжно.</p>
         </div>
 
-        <!-- === ВСТРОЕННАЯ ФОРМА ДЛЯ ОТЗЫВОВ === -->
-        <div class="form-container">
-            <h3 style="color: #d4d4ff; font-size: 20px; margin-bottom: 12px;">✍️ Оставить свой отзыв</h3>
-            <p style="color: #aaa; margin-bottom: 16px; font-size: 15px;">Оцените расширение и напишите, что можно улучшить.</p>
-            <!-- ВСТАВЬ СЮДА ССЫЛКУ НА ТВОЮ GOOGLE ФОРМУ -->
-            <iframe src="https://docs.google.com/forms/d/e/1FAIpQLSeVFJ7vO4DAgHWGM_DaRkn-dDAQx7V0u6Nv3xjj3uM-wKov9A/viewform?embedded=true" frameborder="0" marginheight="0" marginwidth="0">
-                Загрузка формы...
-            </iframe>
-        </div>
-
         <a href="index.html" class="btn-back">← Вернуться на главную</a>
         <div class="footer">
             © 2025 — FunPay Helper &middot; <a href="#">GitHub</a> &middot; <a href="#">Telegram</a>
         </div>
     </div>
+
+    <script>
+        // ===== ВОЛНА =====
+        (function() {
+            const canvas = document.getElementById('waveCanvas');
+            const ctx = canvas.getContext('2d');
+            let width = window.innerWidth;
+            let height = window.innerHeight;
+            canvas.width = width;
+            canvas.height = height;
+
+            window.addEventListener('resize', () => {
+                width = window.innerWidth;
+                height = window.innerHeight;
+                canvas.width = width;
+                canvas.height = height;
+            });
+
+            let targetX = width / 2, targetY = height / 2;
+            let currentX = width / 2, currentY = height / 2;
+
+            document.addEventListener('mousemove', (e) => {
+                targetX = e.clientX;
+                targetY = e.clientY;
+            });
+
+            const waves = [
+                { amplitude: 40, frequency: 0.015, speed: 0.8, color: 'rgba(56, 189, 248, 0.25)' },
+                { amplitude: 55, frequency: 0.025, speed: 0.6, color: 'rgba(168, 85, 247, 0.2)' },
+                { amplitude: 30, frequency: 0.04, speed: 1.0, color: 'rgba(56, 189, 248, 0.15)' }
+            ];
+
+            let time = 0;
+
+            function drawWaves() {
+                ctx.clearRect(0, 0, width, height);
+                currentX += (targetX - currentX) * 0.08;
+                currentY += (targetY - currentY) * 0.08;
+                const offsetY = currentY - height / 2;
+
+                waves.forEach((wave) => {
+                    ctx.beginPath();
+                    ctx.moveTo(0, height);
+                    for (let x = 0; x <= width; x += 1) {
+                        const dx = x - currentX;
+                        const dist = Math.sqrt(dx * dx);
+                        const influence = Math.max(0, 1 - dist / 300) * 80;
+                        const shift = influence * Math.sin(x * 0.02 + time * wave.speed);
+                        let y = height / 2
+                            + wave.amplitude * Math.sin(x * wave.frequency + time * wave.speed)
+                            + shift * 0.6
+                            + offsetY * 0.15 * Math.sin(x * 0.01 + time * 0.2);
+                        ctx.lineTo(x, y);
+                    }
+                    ctx.lineTo(width, height);
+                    ctx.closePath();
+                    ctx.fillStyle = wave.color;
+                    ctx.fill();
+                });
+                time += 0.02;
+                requestAnimationFrame(drawWaves);
+            }
+            drawWaves();
+        })();
+
+        // ===== НАКЛОН =====
+        (function() {
+            const card = document.getElementById('card');
+            const rect = card.getBoundingClientRect();
+            const centerX = rect.left + rect.width / 2;
+            const centerY = rect.top + rect.height / 2;
+
+            document.addEventListener('mousemove', (e) => {
+                const deltaX = (e.clientX - centerX) / rect.width;
+                const deltaY = (e.clientY - centerY) / rect.height;
+                card.style.transform =
+                    `rotateX(${-deltaY * 6}deg) rotateY(${deltaX * 6}deg)`;
+            });
+
+            document.addEventListener('mouseleave', () => {
+                card.style.transform = 'rotateX(0deg) rotateY(0deg)';
+            });
+        })();
+    </script>
 </body>
 </html>
