@@ -23,7 +23,7 @@
             width: 100%;
             background: transparent;
             padding: 48px 40px;
-            transition: transform 0.1s ease-out;
+            transition: transform 0.08s ease-out;
             transform-style: preserve-3d;
             transform: rotateX(0deg) rotateY(0deg);
             will-change: transform;
@@ -220,20 +220,67 @@
     <script>
         (function() {
             const card = document.getElementById('card');
-            if (card) {
+            if (!card) return;
+
+            let isMobile = false;
+            if (/Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+                isMobile = true;
+            }
+
+            // === Плавное сглаживание для гироскопа ===
+            let smoothX = 0;
+            let smoothY = 0;
+            const lerpFactor = 0.08;
+
+            // ===== ПК: наклон за мышкой =====
+            if (!isMobile) {
                 const rect = card.getBoundingClientRect();
                 const centerX = rect.left + rect.width / 2;
                 const centerY = rect.top + rect.height / 2;
+
                 document.addEventListener('mousemove', (e) => {
                     const deltaX = (e.clientX - centerX) / rect.width;
                     const deltaY = (e.clientY - centerY) / rect.height;
-                    card.style.transform = `rotateX(${-deltaY * 6}deg) rotateY(${deltaX * 6}deg)`;
+                    card.style.transform = `rotateX(${-deltaY * 5}deg) rotateY(${deltaX * 5}deg)`;
                 });
+
                 document.addEventListener('mouseleave', () => {
                     card.style.transform = 'rotateX(0deg) rotateY(0deg)';
+                    smoothX = 0;
+                    smoothY = 0;
                 });
             }
 
+            // ===== МОБИЛЬНЫЙ: плавный гироскоп =====
+            if (isMobile) {
+                function handleOrientation(event) {
+                    let beta = event.beta || 0;
+                    let gamma = event.gamma || 0;
+
+                    const maxAngle = 20;
+                    const targetX = Math.max(-maxAngle, Math.min(maxAngle, beta * 0.35));
+                    const targetY = Math.max(-maxAngle, Math.min(maxAngle, gamma * 0.5));
+
+                    smoothX += (targetX - smoothX) * lerpFactor;
+                    smoothY += (targetY - smoothY) * lerpFactor;
+
+                    card.style.transform = `rotateX(${-smoothX}deg) rotateY(${smoothY}deg)`;
+                }
+
+                if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
+                    document.addEventListener('click', () => {
+                        DeviceOrientationEvent.requestPermission().then(response => {
+                            if (response === 'granted') {
+                                window.addEventListener('deviceorientation', handleOrientation);
+                            }
+                        }).catch(console.error);
+                    });
+                } else {
+                    window.addEventListener('deviceorientation', handleOrientation);
+                }
+            }
+
+            // ===== КОПИРОВАНИЕ DISCORD =====
             const discordLink = document.getElementById('discordLink');
             const toast = document.getElementById('toast');
             let toastTimeout = null;
