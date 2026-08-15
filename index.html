@@ -15,6 +15,7 @@
             align-items: center;
             padding: 24px;
             background: #0a0a0a;
+            perspective: 800px;
         }
 
         .container {
@@ -22,6 +23,10 @@
             width: 100%;
             background: transparent;
             padding: 48px 40px;
+            transition: transform 0.1s ease-out;
+            transform-style: preserve-3d;
+            transform: rotateX(0deg) rotateY(0deg);
+            will-change: transform;
         }
 
         h1 {
@@ -29,6 +34,7 @@
             font-weight: 700;
             color: #ffffff;
             margin-bottom: 8px;
+            transform: translateZ(20px);
         }
 
         .sub {
@@ -38,6 +44,7 @@
             line-height: 1.6;
             border-left: 3px solid #38bdf8;
             padding-left: 20px;
+            transform: translateZ(10px);
         }
 
         .buttons {
@@ -45,6 +52,7 @@
             flex-wrap: wrap;
             gap: 12px;
             margin-bottom: 40px;
+            transform: translateZ(5px);
         }
 
         .btn {
@@ -64,6 +72,7 @@
         .btn:hover {
             background: #2a2a2a;
             border-color: #38bdf8;
+            transform: translateY(-2px) translateZ(15px);
         }
 
         .btn-primary {
@@ -119,7 +128,7 @@
     </style>
 </head>
 <body>
-    <div class="container">
+    <div class="container" id="card">
         <h1>⚡ FunPay Helper</h1>
         <div class="sub">
             Умный помощник для продавцов на FunPay.<br />
@@ -148,5 +157,26 @@
             </span>
         </div>
     </div>
+
+    <script>
+        (function() {
+            const card = document.getElementById('card');
+            if (!card) return;
+
+            const rect = card.getBoundingClientRect();
+            const centerX = rect.left + rect.width / 2;
+            const centerY = rect.top + rect.height / 2;
+
+            document.addEventListener('mousemove', (e) => {
+                const deltaX = (e.clientX - centerX) / rect.width;
+                const deltaY = (e.clientY - centerY) / rect.height;
+                card.style.transform = `rotateX(${-deltaY * 6}deg) rotateY(${deltaX * 6}deg)`;
+            });
+
+            document.addEventListener('mouseleave', () => {
+                card.style.transform = 'rotateX(0deg) rotateY(0deg)';
+            });
+        })();
+    </script>
 </body>
 </html>
