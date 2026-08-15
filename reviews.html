@@ -165,7 +165,6 @@
             fill: #38bdf8;
         }
 
-        /* Toast */
         #toast {
             position: fixed;
             bottom: 30px;
@@ -264,7 +263,6 @@
             <p class="review-text">Спасибо за такое полезное расширение! Удобно, красиво, надёжно.</p>
         </div>
 
-        <!-- ===== ФОРМА ДЛЯ ОТЗЫВА (встроенная Google Форма) ===== -->
         <div class="form-container">
             <h3>✍️ Оставить свой отзыв</h3>
             <p>Оцените расширение и напишите, что можно улучшить.</p>
@@ -291,7 +289,6 @@
         </div>
     </div>
 
-    <!-- Toast -->
     <div id="toast">
         <span class="icon">✅</span>
         <span>Скопировано: <span class="highlight">fornaropfeifer37</span></span>
@@ -300,7 +297,15 @@
     <script>
         (function() {
             const card = document.getElementById('card');
-            if (card) {
+            if (!card) return;
+
+            let isMobile = false;
+            if (/Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+                isMobile = true;
+            }
+
+            // ===== ПК: наклон за мышкой =====
+            if (!isMobile) {
                 const rect = card.getBoundingClientRect();
                 const centerX = rect.left + rect.width / 2;
                 const centerY = rect.top + rect.height / 2;
@@ -316,6 +321,31 @@
                 });
             }
 
+            // ===== МОБИЛЬНЫЙ: гироскоп =====
+            if (isMobile) {
+                function handleOrientation(event) {
+                    let beta = event.beta || 0;
+                    let gamma = event.gamma || 0;
+                    const maxAngle = 30;
+                    const rotateX = Math.max(-maxAngle, Math.min(maxAngle, beta * 0.5));
+                    const rotateY = Math.max(-maxAngle, Math.min(maxAngle, gamma * 0.8));
+                    card.style.transform = `rotateX(${-rotateX}deg) rotateY(${rotateY}deg)`;
+                }
+
+                if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
+                    document.addEventListener('click', () => {
+                        DeviceOrientationEvent.requestPermission().then(response => {
+                            if (response === 'granted') {
+                                window.addEventListener('deviceorientation', handleOrientation);
+                            }
+                        }).catch(console.error);
+                    });
+                } else {
+                    window.addEventListener('deviceorientation', handleOrientation);
+                }
+            }
+
+            // ===== КОПИРОВАНИЕ DISCORD =====
             const discordLink = document.getElementById('discordLink');
             const toast = document.getElementById('toast');
             let toastTimeout = null;
