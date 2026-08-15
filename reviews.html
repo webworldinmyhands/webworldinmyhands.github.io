@@ -84,9 +84,38 @@
             line-height: 1.5;
         }
 
+        .form-container {
+            background: #111;
+            border-radius: 12px;
+            padding: 24px 20px;
+            margin: 30px 0 20px;
+            border: 1px solid #2a2a2a;
+            transform: translateZ(5px);
+        }
+
+        .form-container h3 {
+            color: #d4d4ff;
+            font-size: 20px;
+            margin-bottom: 8px;
+        }
+
+        .form-container p {
+            color: #aaa;
+            margin-bottom: 16px;
+            font-size: 15px;
+        }
+
+        .form-container iframe {
+            width: 100%;
+            height: 700px;
+            border: none;
+            border-radius: 12px;
+            background: #0d0d0d;
+        }
+
         .btn-back {
             display: inline-block;
-            margin: 20px 0 10px;
+            margin: 10px 0 10px;
             background: #38bdf8;
             border: none;
             color: #0a0a0a;
@@ -136,6 +165,7 @@
             fill: #38bdf8;
         }
 
+        /* Toast */
         #toast {
             position: fixed;
             bottom: 30px;
@@ -175,27 +205,12 @@
         }
 
         @media (max-width: 600px) {
-            .container {
-                padding: 28px 20px;
-            }
-            h1 {
-                font-size: 28px;
-            }
-            .sub {
-                font-size: 16px;
-                padding-left: 14px;
-            }
-            #toast {
-                font-size: 13px;
-                padding: 12px 20px;
-                width: 90%;
-            }
-            .footer {
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                gap: 8px;
-            }
+            .container { padding: 28px 20px; }
+            h1 { font-size: 28px; }
+            .sub { font-size: 16px; padding-left: 14px; }
+            .form-container iframe { height: 800px; }
+            #toast { font-size: 13px; padding: 12px 20px; width: 90%; }
+            .footer { display: flex; flex-direction: column; align-items: center; gap: 8px; }
         }
     </style>
 </head>
@@ -249,6 +264,15 @@
             <p class="review-text">Спасибо за такое полезное расширение! Удобно, красиво, надёжно.</p>
         </div>
 
+        <!-- ===== ФОРМА ДЛЯ ОТЗЫВА (встроенная Google Форма) ===== -->
+        <div class="form-container">
+            <h3>✍️ Оставить свой отзыв</h3>
+            <p>Оцените расширение и напишите, что можно улучшить.</p>
+            <iframe src="https://docs.google.com/forms/d/e/1FAIpQLSeVFJ7vO4DAgHWGM_DaRkn-dDAQx7V0u6Nv3xjj3uM-wKov9A/viewform?embedded=true" frameborder="0" marginheight="0" marginwidth="0">
+                Загрузка формы...
+            </iframe>
+        </div>
+
         <a href="index.html" class="btn-back">← Вернуться на главную</a>
         <div class="footer">
             © 2025 — FunPay Helper &middot;
@@ -267,6 +291,7 @@
         </div>
     </div>
 
+    <!-- Toast -->
     <div id="toast">
         <span class="icon">✅</span>
         <span>Скопировано: <span class="highlight">fornaropfeifer37</span></span>
