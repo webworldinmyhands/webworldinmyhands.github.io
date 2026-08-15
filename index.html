@@ -20,20 +20,21 @@
             justify-content: center;
             align-items: center;
             padding: 24px;
-            background: #0a0e17; /* однотонный фон */
+            background: #0a0e17;
             position: relative;
             overflow: hidden;
         }
 
-        /* ---- ХОЛСТ ДЛЯ ВОЛНЫ (поверх фона, под контентом) ---- */
+        /* ---- ХОЛСТ ДЛЯ ВОЛНЫ ---- */
         #waveCanvas {
             position: fixed;
             top: 0;
             left: 0;
-            width: 100%;
-            height: 100%;
+            width: 100vw;
+            height: 100vh;
             z-index: 0;
-            pointer-events: none; /* чтобы не мешать кликам */
+            pointer-events: none;
+            display: block;
         }
 
         /* ---- ОСНОВНАЯ КАРТОЧКА ---- */
@@ -49,7 +50,6 @@
             border-radius: 40px;
             border: 1px solid rgba(56, 189, 248, 0.15);
             box-shadow: 0 25px 80px rgba(0, 0, 0, 0.8), 0 0 40px rgba(56, 189, 248, 0.05);
-            transition: box-shadow 0.3s ease;
         }
 
         /* Анимированная рамка */
@@ -225,56 +225,65 @@
             const canvas = document.getElementById('waveCanvas');
             const ctx = canvas.getContext('2d');
 
-            let width, height;
-            let mouseX = -1000, mouseY = -1000;
+            let width = window.innerWidth;
+            let height = window.innerHeight;
+            canvas.width = width;
+            canvas.height = height;
 
-            // Настройки волны
-            const waves = [
-                { amplitude: 40, frequency: 0.015, speed: 0.8, color: 'rgba(56, 189, 248, 0.25)' },
-                { amplitude: 60, frequency: 0.025, speed: 0.5, color: 'rgba(168, 85, 247, 0.2)' },
-                { amplitude: 30, frequency: 0.04, speed: 1.2, color: 'rgba(56, 189, 248, 0.15)' }
-            ];
-
-            // Ресайз холста
-            function resize() {
+            window.addEventListener('resize', () => {
                 width = window.innerWidth;
                 height = window.innerHeight;
                 canvas.width = width;
                 canvas.height = height;
-            }
-            window.addEventListener('resize', resize);
-            resize();
-
-            // Отслеживание мыши
-            document.addEventListener('mousemove', (e) => {
-                mouseX = e.clientX;
-                mouseY = e.clientY;
             });
 
-            // Анимация
+            // Позиция мыши с плавным сглаживанием
+            let targetX = width / 2;
+            let targetY = height / 2;
+            let currentX = width / 2;
+            let currentY = height / 2;
+
+            document.addEventListener('mousemove', (e) => {
+                targetX = e.clientX;
+                targetY = e.clientY;
+            });
+
+            // Параметры волн
+            const waves = [
+                { amplitude: 40, frequency: 0.015, speed: 0.8, color: 'rgba(56, 189, 248, 0.25)' },
+                { amplitude: 55, frequency: 0.025, speed: 0.6, color: 'rgba(168, 85, 247, 0.2)' },
+                { amplitude: 30, frequency: 0.04, speed: 1.0, color: 'rgba(56, 189, 248, 0.15)' }
+            ];
+
             let time = 0;
-            function animate() {
+
+            function drawWaves() {
                 ctx.clearRect(0, 0, width, height);
 
-                // Рисуем каждую волну
+                // Плавное сглаживание движения (волна идёт за мышкой)
+                currentX += (targetX - currentX) * 0.08;
+                currentY += (targetY - currentY) * 0.08;
+
+                const offsetX = currentX - width / 2;
+                const offsetY = currentY - height / 2;
+
                 waves.forEach((wave) => {
                     ctx.beginPath();
                     ctx.moveTo(0, height);
 
                     for (let x = 0; x <= width; x += 1) {
-                        // Базовая синусоида
-                        let y = height / 2 + wave.amplitude * Math.sin(x * wave.frequency + time * wave.speed);
-
-                        // Влияние мыши (волна тянется к курсору)
-                        const dx = x - mouseX;
-                        const dy = height / 2 - mouseY;
+                        // Базовая синусоида со смещением за курсором
+                        const dx = x - currentX;
+                        const dy = 0;
                         const dist = Math.sqrt(dx * dx + dy * dy);
-                        if (dist < 300) {
-                            const influence = (1 - dist / 300) * 60;
-                            const angle = Math.atan2(dy, dx);
-                            y += Math.sin(angle) * influence;
-                            y += Math.cos(angle) * influence * 0.3;
-                        }
+                        const influence = Math.max(0, 1 - dist / 300) * 80;
+
+                        // Волна смещается в сторону курсора
+                        const shift = influence * Math.sin(x * 0.02 + time * wave.speed);
+                        let y = height / 2
+                            + wave.amplitude * Math.sin(x * wave.frequency + time * wave.speed)
+                            + shift * 0.6
+                            + offsetY * 0.15 * Math.sin(x * 0.01 + time * 0.2);
 
                         ctx.lineTo(x, y);
                     }
@@ -286,13 +295,10 @@
                 });
 
                 time += 0.02;
-                requestAnimationFrame(animate);
+                requestAnimationFrame(drawWaves);
             }
 
-            animate();
-
-            // Обновляем холст при ресайзе окна
-            window.addEventListener('resize', resize);
+            drawWaves();
         })();
     </script>
 </body>
