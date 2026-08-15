@@ -23,7 +23,7 @@
             width: 100%;
             background: transparent;
             padding: 48px 40px;
-            transition: transform 0.1s ease-out;
+            transition: transform 0.08s ease-out;
             transform-style: preserve-3d;
             transform: rotateX(0deg) rotateY(0deg);
             will-change: transform;
@@ -304,6 +304,11 @@
                 isMobile = true;
             }
 
+            // === Плавное сглаживание для гироскопа ===
+            let smoothX = 0;
+            let smoothY = 0;
+            const lerpFactor = 0.08; // чем меньше, тем плавнее
+
             // ===== ПК: наклон за мышкой =====
             if (!isMobile) {
                 const rect = card.getBoundingClientRect();
@@ -313,23 +318,32 @@
                 document.addEventListener('mousemove', (e) => {
                     const deltaX = (e.clientX - centerX) / rect.width;
                     const deltaY = (e.clientY - centerY) / rect.height;
-                    card.style.transform = `rotateX(${-deltaY * 6}deg) rotateY(${deltaX * 6}deg)`;
+                    card.style.transform = `rotateX(${-deltaY * 5}deg) rotateY(${deltaX * 5}deg)`;
                 });
 
                 document.addEventListener('mouseleave', () => {
                     card.style.transform = 'rotateX(0deg) rotateY(0deg)';
+                    smoothX = 0;
+                    smoothY = 0;
                 });
             }
 
-            // ===== МОБИЛЬНЫЙ: гироскоп =====
+            // ===== МОБИЛЬНЫЙ: плавный гироскоп =====
             if (isMobile) {
                 function handleOrientation(event) {
                     let beta = event.beta || 0;
                     let gamma = event.gamma || 0;
-                    const maxAngle = 30;
-                    const rotateX = Math.max(-maxAngle, Math.min(maxAngle, beta * 0.5));
-                    const rotateY = Math.max(-maxAngle, Math.min(maxAngle, gamma * 0.8));
-                    card.style.transform = `rotateX(${-rotateX}deg) rotateY(${rotateY}deg)`;
+
+                    // Ограничиваем и делаем менее чувствительным
+                    const maxAngle = 20; // уменьшил с 30 до 20
+                    const targetX = Math.max(-maxAngle, Math.min(maxAngle, beta * 0.35));
+                    const targetY = Math.max(-maxAngle, Math.min(maxAngle, gamma * 0.5));
+
+                    // Плавное приближение (lerp)
+                    smoothX += (targetX - smoothX) * lerpFactor;
+                    smoothY += (targetY - smoothY) * lerpFactor;
+
+                    card.style.transform = `rotateX(${-smoothX}deg) rotateY(${smoothY}deg)`;
                 }
 
                 if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
