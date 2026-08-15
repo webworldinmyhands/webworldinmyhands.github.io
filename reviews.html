@@ -55,11 +55,34 @@
             transform: translateZ(5px);
         }
 
-        .review-header { display: flex; justify-content: space-between; align-items: center; }
-        .reviewer-name { font-weight: 600; color: #d4d4ff; }
-        .review-date { color: #666; font-size: 13px; }
-        .stars { color: #ffd700; font-size: 18px; letter-spacing: 2px; margin: 6px 0 4px; }
-        .review-text { color: #bbb; margin: 4px 0 0; line-height: 1.5; }
+        .review-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .reviewer-name {
+            font-weight: 600;
+            color: #d4d4ff;
+        }
+
+        .review-date {
+            color: #666;
+            font-size: 13px;
+        }
+
+        .stars {
+            color: #ffd700;
+            font-size: 18px;
+            letter-spacing: 2px;
+            margin: 6px 0 4px;
+        }
+
+        .review-text {
+            color: #bbb;
+            margin: 4px 0 0;
+            line-height: 1.5;
+        }
 
         .btn-back {
             display: inline-block;
@@ -74,6 +97,7 @@
             transition: 0.2s;
             transform: translateZ(5px);
         }
+
         .btn-back:hover {
             background: #4ac5ff;
             transform: translateZ(15px);
@@ -87,6 +111,7 @@
             color: #555;
             text-align: center;
         }
+
         .footer a {
             color: #777;
             text-decoration: none;
@@ -95,15 +120,18 @@
             align-items: center;
             gap: 5px;
         }
+
         .footer a:hover {
             color: #38bdf8;
         }
+
         .footer a svg {
             width: 18px;
             height: 18px;
             fill: currentColor;
             transition: 0.2s;
         }
+
         .footer a:hover svg {
             fill: #38bdf8;
         }
@@ -131,19 +159,43 @@
             backdrop-filter: blur(8px);
             background: rgba(20, 20, 20, 0.9);
         }
+
         #toast.show {
             opacity: 1;
             transform: translateX(-50%) translateY(0px);
         }
-        #toast .icon { font-size: 20px; }
-        #toast .highlight { color: #38bdf8; font-weight: 600; }
+
+        #toast .icon {
+            font-size: 20px;
+        }
+
+        #toast .highlight {
+            color: #38bdf8;
+            font-weight: 600;
+        }
 
         @media (max-width: 600px) {
-            .container { padding: 28px 20px; }
-            h1 { font-size: 28px; }
-            .sub { font-size: 16px; padding-left: 14px; }
-            #toast { font-size: 13px; padding: 12px 20px; width: 90%; }
-            .footer { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+            .container {
+                padding: 28px 20px;
+            }
+            h1 {
+                font-size: 28px;
+            }
+            .sub {
+                font-size: 16px;
+                padding-left: 14px;
+            }
+            #toast {
+                font-size: 13px;
+                padding: 12px 20px;
+                width: 90%;
+            }
+            .footer {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 8px;
+            }
         }
     </style>
 </head>
@@ -200,7 +252,6 @@
         <a href="index.html" class="btn-back">← Вернуться на главную</a>
         <div class="footer">
             © 2025 — FunPay Helper &middot;
-            <a href="#">GitHub</a> &middot;
             <a href="https://funpay.com/users/7279533/" target="_blank" style="color: #38bdf8; display: inline-flex; align-items: center; gap: 5px;">
                 <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                     <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
@@ -223,23 +274,23 @@
 
     <script>
         (function() {
-            // Наклон
             const card = document.getElementById('card');
             if (card) {
                 const rect = card.getBoundingClientRect();
                 const centerX = rect.left + rect.width / 2;
                 const centerY = rect.top + rect.height / 2;
+
                 document.addEventListener('mousemove', (e) => {
                     const deltaX = (e.clientX - centerX) / rect.width;
                     const deltaY = (e.clientY - centerY) / rect.height;
                     card.style.transform = `rotateX(${-deltaY * 6}deg) rotateY(${deltaX * 6}deg)`;
                 });
+
                 document.addEventListener('mouseleave', () => {
                     card.style.transform = 'rotateX(0deg) rotateY(0deg)';
                 });
             }
 
-            // Копирование Discord
             const discordLink = document.getElementById('discordLink');
             const toast = document.getElementById('toast');
             let toastTimeout = null;
