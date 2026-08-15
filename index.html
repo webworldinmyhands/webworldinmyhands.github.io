@@ -204,56 +204,56 @@
                 canvas.height = height;
             });
 
-            let mouseX = width / 2;
-            let mouseY = height / 2;
+            let ripples = [];
+            const MAX_RIPPLES = 100;
 
             document.addEventListener('mousemove', (e) => {
-                mouseX = e.clientX;
-                mouseY = e.clientY;
+                const x = e.clientX;
+                const y = e.clientY;
+                ripples.push({
+                    x: x,
+                    y: y,
+                    radius: 2,
+                    maxRadius: 80 + Math.random() * 60,
+                    speed: 1.5 + Math.random() * 0.8,
+                    alpha: 1,
+                    width: 2 + Math.random() * 2,
+                    hue: Math.random() > 0.5 ? 200 : 280
+                });
+                if (ripples.length > MAX_RIPPLES) {
+                    ripples.shift();
+                }
             });
 
-            // ===== ВОЛНЫ, СЛЕДУЮЩИЕ ЗА КУРСОРОМ =====
-            const waves = [
-                { amplitude: 30, frequency: 0.04, speed: 1.2, color: 'rgba(56, 189, 248, 0.35)' },
-                { amplitude: 45, frequency: 0.025, speed: 0.8, color: 'rgba(168, 85, 247, 0.25)' },
-                { amplitude: 20, frequency: 0.06, speed: 1.6, color: 'rgba(56, 189, 248, 0.2)' }
-            ];
-
-            let time = 0;
-
-            function drawWaves() {
+            function drawRipples() {
                 ctx.clearRect(0, 0, width, height);
-
-                waves.forEach((wave) => {
-                    ctx.beginPath();
-                    ctx.moveTo(0, mouseY);
-
-                    for (let x = 0; x <= width; x += 1) {
-                        // Волна идёт от курсора влево и вправо
-                        const distFromCursor = Math.abs(x - mouseX);
-                        const fade = Math.max(0, 1 - distFromCursor / 500);
-
-                        // Основная волна с затуханием от центра (курсора)
-                        let y = mouseY
-                            + wave.amplitude * Math.sin(x * wave.frequency + time * wave.speed) * fade
-                            + wave.amplitude * 0.3 * Math.sin(x * wave.frequency * 2 + time * 0.5) * fade;
-
-                        ctx.lineTo(x, y);
+                for (let i = ripples.length - 1; i >= 0; i--) {
+                    const r = ripples[i];
+                    r.radius += r.speed;
+                    r.alpha = 1 - (r.radius / r.maxRadius);
+                    if (r.alpha <= 0 || r.radius >= r.maxRadius) {
+                        ripples.splice(i, 1);
+                        continue;
                     }
-
-                    ctx.lineTo(width, mouseY);
-                    ctx.closePath();
-                    ctx.fillStyle = wave.color;
-                    ctx.fill();
-                });
-
-                time += 0.02;
-                requestAnimationFrame(drawWaves);
+                    ctx.beginPath();
+                    ctx.arc(r.x, r.y, r.radius, 0, Math.PI * 2);
+                    ctx.strokeStyle = `hsla(${r.hue}, 80%, 60%, ${r.alpha * 0.6})`;
+                    ctx.lineWidth = r.width * r.alpha;
+                    ctx.shadowColor = `hsla(${r.hue}, 100%, 70%, ${r.alpha * 0.3})`;
+                    ctx.shadowBlur = 20;
+                    ctx.stroke();
+                    ctx.beginPath();
+                    ctx.arc(r.x - 2, r.y - 2, r.radius * 0.6, 0, Math.PI * 2);
+                    ctx.strokeStyle = `hsla(${r.hue + 30}, 70%, 80%, ${r.alpha * 0.2})`;
+                    ctx.lineWidth = r.width * 0.4 * r.alpha;
+                    ctx.shadowBlur = 0;
+                    ctx.stroke();
+                }
+                requestAnimationFrame(drawRipples);
             }
 
-            drawWaves();
+            drawRipples();
 
-            // ===== НАКЛОН =====
             const card = document.getElementById('card');
             if (card) {
                 const rect = card.getBoundingClientRect();
