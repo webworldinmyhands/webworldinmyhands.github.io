@@ -177,9 +177,126 @@
         <h1>📬 Контакты</h1>
         <p class="sub">Свяжитесь со мной любым удобным способом</p>
 
+        <!-- Discord -->
         <div class="contact-card">
             <div class="info">
                 <div class="label">💬 Discord</div>
                 <div class="value">
                     fornaropfeifer37
-                    <span class="badge
+                    <span class="badge">нажмите для копирования</span>
+                </div>
+            </div>
+            <button class="action-btn primary" id="copyDiscordBtn">📋 Скопировать</button>
+        </div>
+
+        <!-- Telegram -->
+        <div class="contact-card">
+            <div class="info">
+                <div class="label">✈️ Telegram</div>
+                <div class="value">
+                    @webworldinmyhands
+                    <span class="badge">нажмите для перехода</span>
+                </div>
+            </div>
+            <a href="https://t.me/webworldinmyhands" target="_blank" class="action-btn primary">💬 Написать</a>
+        </div>
+
+        <!-- Discord Server -->
+        <div class="contact-card">
+            <div class="info">
+                <div class="label">🎮 Discord-сервер</div>
+                <div class="value">
+                    PanicClient
+                    <span class="badge">присоединяйся</span>
+                </div>
+            </div>
+            <a href="https://discord.gg/Staxgz5Mw" target="_blank" class="action-btn primary">🚀 Присоединиться</a>
+        </div>
+
+        <a href="index.html" class="btn-back">← Вернуться на главную</a>
+
+        <div class="footer">
+            © 2025 — FunPay Helper &middot; <a href="#">GitHub</a> &middot; <a href="#">Discord</a>
+        </div>
+    </div>
+
+    <script>
+        (function() {
+            const card = document.getElementById('card');
+            if (!card) return;
+
+            let isMobile = false;
+            if (/Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+                isMobile = true;
+            }
+
+            // ===== ПК: наклон за мышкой =====
+            if (!isMobile) {
+                const rect = card.getBoundingClientRect();
+                const centerX = rect.left + rect.width / 2;
+                const centerY = rect.top + rect.height / 2;
+
+                document.addEventListener('mousemove', (e) => {
+                    const deltaX = (e.clientX - centerX) / rect.width;
+                    const deltaY = (e.clientY - centerY) / rect.height;
+                    card.style.transform = `rotateX(${-deltaY * 6}deg) rotateY(${deltaX * 6}deg)`;
+                });
+
+                document.addEventListener('mouseleave', () => {
+                    card.style.transform = 'rotateX(0deg) rotateY(0deg)';
+                });
+            }
+
+            // ===== МОБИЛЬНЫЙ: гироскоп =====
+            if (isMobile) {
+                function handleOrientation(event) {
+                    let beta = event.beta || 0;
+                    let gamma = event.gamma || 0;
+                    const maxAngle = 30;
+                    const rotateX = Math.max(-maxAngle, Math.min(maxAngle, beta * 0.5));
+                    const rotateY = Math.max(-maxAngle, Math.min(maxAngle, gamma * 0.8));
+                    card.style.transform = `rotateX(${-rotateX}deg) rotateY(${rotateY}deg)`;
+                }
+
+                if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
+                    document.addEventListener('click', () => {
+                        DeviceOrientationEvent.requestPermission().then(response => {
+                            if (response === 'granted') {
+                                window.addEventListener('deviceorientation', handleOrientation);
+                            }
+                        }).catch(console.error);
+                    });
+                } else {
+                    window.addEventListener('deviceorientation', handleOrientation);
+                }
+            }
+
+            // ===== КОПИРОВАНИЕ DISCORD =====
+            const copyBtn = document.getElementById('copyDiscordBtn');
+            const discordNick = 'fornaropfeifer37';
+
+            copyBtn.addEventListener('click', () => {
+                navigator.clipboard.writeText(discordNick).then(() => {
+                    const originalText = copyBtn.textContent;
+                    copyBtn.textContent = '✅ Скопировано!';
+                    setTimeout(() => {
+                        copyBtn.textContent = originalText;
+                    }, 2000);
+                }).catch(() => {
+                    const textArea = document.createElement('textarea');
+                    textArea.value = discordNick;
+                    document.body.appendChild(textArea);
+                    textArea.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(textArea);
+                    const originalText = copyBtn.textContent;
+                    copyBtn.textContent = '✅ Скопировано!';
+                    setTimeout(() => {
+                        copyBtn.textContent = originalText;
+                    }, 2000);
+                });
+            });
+        })();
+    </script>
+</body>
+</html>
