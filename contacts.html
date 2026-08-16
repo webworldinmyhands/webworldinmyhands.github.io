@@ -23,7 +23,7 @@
             width: 100%;
             background: transparent;
             padding: 48px 40px;
-            transition: transform 0.1s ease-out;
+            transition: transform 0.08s ease-out;
             transform-style: preserve-3d;
             transform: rotateX(0deg) rotateY(0deg);
             will-change: transform;
@@ -230,7 +230,7 @@
                 isMobile = true;
             }
 
-            // ===== ПК: наклон за мышкой =====
+            // ===== ПК =====
             if (!isMobile) {
                 const rect = card.getBoundingClientRect();
                 const centerX = rect.left + rect.width / 2;
@@ -239,7 +239,7 @@
                 document.addEventListener('mousemove', (e) => {
                     const deltaX = (e.clientX - centerX) / rect.width;
                     const deltaY = (e.clientY - centerY) / rect.height;
-                    card.style.transform = `rotateX(${-deltaY * 6}deg) rotateY(${deltaX * 6}deg)`;
+                    card.style.transform = `rotateX(${-deltaY * 5}deg) rotateY(${deltaX * 5}deg)`;
                 });
 
                 document.addEventListener('mouseleave', () => {
@@ -247,56 +247,25 @@
                 });
             }
 
-            // ===== МОБИЛЬНЫЙ: гироскоп =====
+            // ===== МОБИЛЬНЫЙ: ГИРОСКОП =====
             if (isMobile) {
+                let smoothX = 0, smoothY = 0;
+                const lerpFactor = 0.08;
+
                 function handleOrientation(event) {
                     let beta = event.beta || 0;
                     let gamma = event.gamma || 0;
-                    const maxAngle = 30;
-                    const rotateX = Math.max(-maxAngle, Math.min(maxAngle, beta * 0.5));
-                    const rotateY = Math.max(-maxAngle, Math.min(maxAngle, gamma * 0.8));
-                    card.style.transform = `rotateX(${-rotateX}deg) rotateY(${rotateY}deg)`;
+                    const maxAngle = 20;
+                    const targetX = Math.max(-maxAngle, Math.min(maxAngle, beta * 0.35));
+                    const targetY = Math.max(-maxAngle, Math.min(maxAngle, gamma * 0.5));
+                    smoothX += (targetX - smoothX) * lerpFactor;
+                    smoothY += (targetY - smoothY) * lerpFactor;
+                    card.style.transform = `rotateX(${-smoothX}deg) rotateY(${smoothY}deg)`;
                 }
 
                 if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
-                    document.addEventListener('click', () => {
+                    document.addEventListener('touchstart', () => {
                         DeviceOrientationEvent.requestPermission().then(response => {
                             if (response === 'granted') {
                                 window.addEventListener('deviceorientation', handleOrientation);
                             }
-                        }).catch(console.error);
-                    });
-                } else {
-                    window.addEventListener('deviceorientation', handleOrientation);
-                }
-            }
-
-            // ===== КОПИРОВАНИЕ DISCORD =====
-            const copyBtn = document.getElementById('copyDiscordBtn');
-            const discordNick = 'fornaropfeifer37';
-
-            copyBtn.addEventListener('click', () => {
-                navigator.clipboard.writeText(discordNick).then(() => {
-                    const originalText = copyBtn.textContent;
-                    copyBtn.textContent = '✅ Скопировано!';
-                    setTimeout(() => {
-                        copyBtn.textContent = originalText;
-                    }, 2000);
-                }).catch(() => {
-                    const textArea = document.createElement('textarea');
-                    textArea.value = discordNick;
-                    document.body.appendChild(textArea);
-                    textArea.select();
-                    document.execCommand('copy');
-                    document.body.removeChild(textArea);
-                    const originalText = copyBtn.textContent;
-                    copyBtn.textContent = '✅ Скопировано!';
-                    setTimeout(() => {
-                        copyBtn.textContent = originalText;
-                    }, 2000);
-                });
-            });
-        })();
-    </script>
-</body>
-</html>
