@@ -153,6 +153,21 @@
             font-size: 16px;
         }
 
+        .debug-box {
+            background: #111;
+            border: 1px solid #333;
+            border-radius: 8px;
+            padding: 12px;
+            margin: 12px 0;
+            font-family: monospace;
+            font-size: 12px;
+            color: #8b949e;
+            max-height: 200px;
+            overflow: auto;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+
         @media (max-width: 600px) {
             .container { padding: 28px 20px; }
             h1 { font-size: 28px; }
@@ -169,6 +184,11 @@
             <div class="loading">⏳ Загрузка отзывов...</div>
         </div>
 
+        <!-- Отладочный блок (будет виден, если что-то пошло не так) -->
+        <div id="debugContainer" style="display: none;">
+            <div class="debug-box" id="debugOutput"></div>
+        </div>
+
         <div style="margin-top: 20px;">
             <a href="leave-review.html" class="btn">✍️ Оставить отзыв</a>
             <a href="index.html" class="btn btn-secondary">← На главную</a>
@@ -180,17 +200,37 @@
     </div>
 
     <script>
-        // ===== ССЫЛКА НА ТВОЮ GOOGLE ТАБЛИЦУ (ОПУБЛИКОВАННУЮ КАК CSV) =====
+        // ===== ССЫЛКА НА ТВОЮ GOOGLE ТАБЛИЦУ =====
         const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSCB5wBSJNEhGREiRZzGHoCKfQrs34LzqcWK-31p5WcZnk_AUYhfmjH77aVnl3GFt0TaQAcvgIxz8ls/pub?gid=1662011496&single=true&output=csv';
+
+        // Отладочная функция
+        function debugLog(message) {
+            const container = document.getElementById('debugContainer');
+            const output = document.getElementById('debugOutput');
+            container.style.display = 'block';
+            output.textContent += message + '\n';
+        }
 
         async function loadReviews() {
             const container = document.getElementById('reviewsContainer');
+            container.innerHTML = '<div class="loading">⏳ Загрузка отзывов...</div>';
 
             try {
-                const response = await fetch(CSV_URL);
-                const csvText = await response.text();
+                debugLog('=== НАЧАЛО ЗАГРУЗКИ ===');
+                debugLog('Ссылка: ' + CSV_URL);
 
-                // Проверяем, что данные не пустые
+                const response = await fetch(CSV_URL);
+                debugLog('Статус ответа: ' + response.status);
+
+                if (!response.ok) {
+                    container.innerHTML = `<div class="error-msg">❌ Ошибка HTTP: ${response.status}</div>`;
+                    return;
+                }
+
+                const csvText = await response.text();
+                debugLog('Длина CSV: ' + csvText.length + ' символов');
+                debugLog('Первые 300 символов:\n' + csvText.substring(0, 300));
+
                 if (!csvText || csvText.trim() === '') {
                     container.innerHTML = '<div class="empty">📭 Пока нет отзывов. Будьте первым!</div>';
                     return;
@@ -198,8 +238,8 @@
 
                 // Парсим CSV
                 const rows = csvText.split('\n').filter(row => row.trim() !== '');
-                
-                // Если только заголовки (1 строка) — значит данных нет
+                debugLog('Количество строк: ' + rows.length);
+
                 if (rows.length < 2) {
                     container.innerHTML = '<div class="empty">📭 Пока нет отзывов. Будьте первым!</div>';
                     return;
@@ -207,75 +247,48 @@
 
                 // Первая строка — заголовки
                 const headers = rows[0].split(',').map(h => h.replace(/"/g, '').trim());
-                
+                debugLog('Заголовки: ' + JSON.stringify(headers));
+
                 // Ищем индексы колонок
                 const nameIndex = headers.findIndex(h => h.toLowerCase().includes('имя') || h.toLowerCase().includes('name'));
                 const ratingIndex = headers.findIndex(h => h.toLowerCase().includes('оценк') || h.toLowerCase().includes('rating'));
                 const textIndex = headers.findIndex(h => h.toLowerCase().includes('текст') || h.toLowerCase().includes('text') || h.toLowerCase().includes('отзыв'));
 
-                // Если не нашли — пробуем другие варианты
-                let useDefault = false;
-                let finalNameIndex, finalRatingIndex, finalTextIndex;
-
-                if (nameIndex === -1 || ratingIndex === -1 || textIndex === -1) {
-                    // Пробуем найти по номерам: 0 - время, 1 - оценка, 2 - текст
-                    if (headers.length >= 3) {
-                        finalNameIndex = 0; // время
-                        finalRatingIndex = 1; // оценка
-                        finalTextIndex = 2; // текст
-                    } else {
-                        useDefault = true;
-                    }
-                } else {
-                    finalNameIndex = nameIndex;
-                    finalRatingIndex = ratingIndex;
-                    finalTextIndex = textIndex;
-                }
+                debugLog('Индексы: name=' + nameIndex + ', rating=' + ratingIndex + ', text=' + textIndex);
 
                 let reviewsHTML = '';
                 let reviewCount = 0;
 
-                // Проходим по строкам (начиная со второй)
+                // Проходим по строкам
                 for (let i = 1; i < rows.length; i++) {
                     const cols = rows[i].split(',').map(c => c.replace(/"/g, '').trim());
+                    debugLog('Строка ' + i + ': ' + JSON.stringify(cols));
+
                     if (cols.length < 3) continue;
 
                     let name, rating, text;
 
-                    if (useDefault) {
-                        // Если не нашли заголовки — берём первые три колонки
+                    // Если нашли колонки по названиям
+                    if (nameIndex !== -1 && ratingIndex !== -1 && textIndex !== -1) {
+                        name = cols[nameIndex] || 'Аноним';
+                        rating = parseInt(cols[ratingIndex]) || 5;
+                        text = cols[textIndex] || '';
+                    } else {
+                        // Если не нашли — берём первые три колонки
                         name = cols[0] || 'Аноним';
                         rating = parseInt(cols[1]) || 5;
                         text = cols[2] || '';
-                    } else {
-                        name = cols[finalNameIndex] || 'Аноним';
-                        rating = parseInt(cols[finalRatingIndex]) || 5;
-                        text = cols[finalTextIndex] || '';
                     }
 
-                    // Пропускаем пустые строки
                     if (!text && !name) continue;
 
                     const stars = '★'.repeat(Math.min(5, Math.max(0, rating))) + '☆'.repeat(Math.max(0, 5 - Math.min(5, Math.max(0, rating))));
-
-                    // Форматируем дату из колонки "Отметка времени"
-                    let dateStr = 'сегодня';
-                    if (cols[0] && cols[0].includes('/')) {
-                        try {
-                            const dateParts = cols[0].split('/');
-                            if (dateParts.length === 3) {
-                                dateStr = `${dateParts[1]}.${dateParts[0]}.${dateParts[2].slice(0, 2)}`;
-                            }
-                        } catch (e) {
-                            dateStr = 'сегодня';
-                        }
-                    }
 
                     reviewsHTML += `
                         <div class="review">
                             <div class="review-header">
                                 <span class="reviewer-name">${escapeHtml(name)}</span>
-                                <span class="review-date">${dateStr}</span>
+                                <span class="review-date">сегодня</span>
                             </div>
                             <div class="stars">${stars}</div>
                             <p class="review-text">${escapeHtml(text) || 'Без текста'}</p>
@@ -284,6 +297,8 @@
                     reviewCount++;
                 }
 
+                debugLog('Обработано отзывов: ' + reviewCount);
+
                 if (reviewsHTML) {
                     container.innerHTML = reviewsHTML;
                 } else {
@@ -291,7 +306,8 @@
                 }
 
             } catch (error) {
-                console.error('Ошибка загрузки отзывов:', error);
+                console.error('Ошибка:', error);
+                debugLog('ОШИБКА: ' + error.message);
                 container.innerHTML = `
                     <div class="error-msg">
                         ❌ Не удалось загрузить отзывы. Попробуйте позже.
@@ -301,7 +317,6 @@
             }
         }
 
-        // Простая защита от XSS
         function escapeHtml(text) {
             if (!text) return '';
             const div = document.createElement('div');
@@ -364,7 +379,6 @@
             }
         })();
 
-        // Загружаем отзывы при открытии страницы
         loadReviews();
     </script>
 </body>
