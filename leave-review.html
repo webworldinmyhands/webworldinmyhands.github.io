@@ -148,6 +148,7 @@
                 isMobile = true;
             }
 
+            // ===== ПК =====
             if (!isMobile) {
                 const rect = card.getBoundingClientRect();
                 const centerX = rect.left + rect.width / 2;
@@ -164,6 +165,7 @@
                 });
             }
 
+            // ===== МОБИЛЬНЫЙ: ГИРОСКОП =====
             if (isMobile) {
                 let smoothX = 0, smoothY = 0;
                 const lerpFactor = 0.08;
@@ -180,13 +182,13 @@
                 }
 
                 if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
-                    document.addEventListener('click', () => {
+                    document.addEventListener('touchstart', () => {
                         DeviceOrientationEvent.requestPermission().then(response => {
                             if (response === 'granted') {
                                 window.addEventListener('deviceorientation', handleOrientation);
                             }
                         }).catch(console.error);
-                    });
+                    }, { once: true });
                 } else {
                     window.addEventListener('deviceorientation', handleOrientation);
                 }
