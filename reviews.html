@@ -80,8 +80,10 @@
 
         .review-text {
             color: #bbb;
-            margin: 4px 0 0;
+            margin: 8px 0 0 0;
             line-height: 1.5;
+            padding-top: 6px;
+            border-top: 1px solid #2a2a2a;
         }
 
         .btn {
@@ -180,7 +182,7 @@
     </div>
 
     <script>
-        // ===== НОВАЯ ССЫЛКА НА ОПУБЛИКОВАННУЮ ТАБЛИЦУ =====
+        // ===== ССЫЛКА НА ОПУБЛИКОВАННУЮ ТАБЛИЦУ =====
         const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSCB5wBSJNEhGREiRZzGHoCKfQrs34LzqcWK-31p5WcZnk_AUYhfmjH77aVnl3GFt0TaQAcvgIxz8ls/pub?gid=2002771560&single=true&output=csv';
 
         async function loadReviews() {
@@ -207,29 +209,26 @@
                 }
 
                 const headers = rows[0].split(',').map(h => h.replace(/"/g, '').trim());
-                const nameIndex = headers.findIndex(h => h.toLowerCase().includes('имя') || h.toLowerCase().includes('name'));
-                const ratingIndex = headers.findIndex(h => h.toLowerCase().includes('оценк') || h.toLowerCase().includes('rating'));
-                const textIndex = headers.findIndex(h => h.toLowerCase().includes('текст') || h.toLowerCase().includes('text') || h.toLowerCase().includes('отзыв'));
+                
+                // Ищем индексы колонок
+                let nameIndex = headers.findIndex(h => h.toLowerCase().includes('имя') || h.toLowerCase().includes('name'));
+                let ratingIndex = headers.findIndex(h => h.toLowerCase().includes('оценк') || h.toLowerCase().includes('rating'));
+                let textIndex = headers.findIndex(h => h.toLowerCase().includes('текст') || h.toLowerCase().includes('text') || h.toLowerCase().includes('отзыв'));
+
+                // Если не нашли по названиям — используем позиции
+                if (nameIndex === -1) nameIndex = 0;
+                if (ratingIndex === -1) ratingIndex = 1;
+                if (textIndex === -1) textIndex = 2;
 
                 let reviewsHTML = '';
-                let reviewCount = 0;
 
                 for (let i = 1; i < rows.length; i++) {
                     const cols = rows[i].split(',').map(c => c.replace(/"/g, '').trim());
                     if (cols.length < 3) continue;
 
-                    let name, rating, text;
-                    if (nameIndex !== -1 && ratingIndex !== -1 && textIndex !== -1) {
-                        name = cols[nameIndex] || 'Аноним';
-                        rating = parseInt(cols[ratingIndex]) || 5;
-                        text = cols[textIndex] || '';
-                    } else {
-                        name = cols[0] || 'Аноним';
-                        rating = parseInt(cols[1]) || 5;
-                        text = cols[2] || '';
-                    }
-
-                    if (!text && !name) continue;
+                    const name = cols[nameIndex] || 'Аноним';
+                    const rating = parseInt(cols[ratingIndex]) || 5;
+                    const text = cols[textIndex] || '';
 
                     const stars = '★'.repeat(Math.min(5, Math.max(0, rating))) + '☆'.repeat(Math.max(0, 5 - Math.min(5, Math.max(0, rating))));
                     let dateStr = 'сегодня';
@@ -252,7 +251,6 @@
                             <p class="review-text">${escapeHtml(text) || 'Без текста'}</p>
                         </div>
                     `;
-                    reviewCount++;
                 }
 
                 container.innerHTML = reviewsHTML || '<div class="empty">📭 Пока нет отзывов. Будьте первым!</div>';
