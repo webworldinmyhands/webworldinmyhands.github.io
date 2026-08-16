@@ -227,12 +227,7 @@
                 isMobile = true;
             }
 
-            // === Плавное сглаживание для гироскопа ===
-            let smoothX = 0;
-            let smoothY = 0;
-            const lerpFactor = 0.08;
-
-            // ===== ПК: наклон за мышкой =====
+            // ===== ПК: НАКЛОН ЗА МЫШКОЙ =====
             if (!isMobile) {
                 const rect = card.getBoundingClientRect();
                 const centerX = rect.left + rect.width / 2;
@@ -251,31 +246,33 @@
                 });
             }
 
-            // ===== МОБИЛЬНЫЙ: плавный гироскоп =====
+            // ===== МОБИЛЬНЫЙ: ГИРОСКОП С РАЗРЕШЕНИЕМ =====
             if (isMobile) {
+                let smoothX = 0, smoothY = 0;
+                const lerpFactor = 0.08;
+
                 function handleOrientation(event) {
                     let beta = event.beta || 0;
                     let gamma = event.gamma || 0;
-
                     const maxAngle = 20;
                     const targetX = Math.max(-maxAngle, Math.min(maxAngle, beta * 0.35));
                     const targetY = Math.max(-maxAngle, Math.min(maxAngle, gamma * 0.5));
-
                     smoothX += (targetX - smoothX) * lerpFactor;
                     smoothY += (targetY - smoothY) * lerpFactor;
-
                     card.style.transform = `rotateX(${-smoothX}deg) rotateY(${smoothY}deg)`;
                 }
 
+                // === ДЛЯ iOS 13+ (iPhone 14, 15) ===
                 if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
-                    document.addEventListener('click', () => {
+                    document.addEventListener('touchstart', () => {
                         DeviceOrientationEvent.requestPermission().then(response => {
                             if (response === 'granted') {
                                 window.addEventListener('deviceorientation', handleOrientation);
                             }
                         }).catch(console.error);
-                    });
+                    }, { once: true });
                 } else {
+                    // Для Android и старых iOS
                     window.addEventListener('deviceorientation', handleOrientation);
                 }
             }
