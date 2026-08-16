@@ -78,12 +78,15 @@
                 const rows = csvText.split('\n').filter(row => row.trim() !== '');
                 if (rows.length < 2) { container.innerHTML = '<div class="empty">📭 Пока нет отзывов. Будьте первым!</div>'; return; }
 
-                // Определяем колонки по заголовкам
+                // Парсим заголовки
                 const headers = rows[0].split(',').map(h => h.replace(/"/g, '').trim());
-                let nameIdx = headers.findIndex(h => /имя|name/i.test(h));
-                let ratingIdx = headers.findIndex(h => /оценк|rating/i.test(h));
-                let textIdx = headers.findIndex(h => /текст|text|отзыв/i.test(h));
-                // Если не нашли, используем позиции: 0-время, 1-оценка, 2-имя, 3-текст
+                
+                // Ищем индексы по названиям колонок
+                let nameIdx = headers.findIndex(h => /имя|name|ник|пользователь/i.test(h));
+                let ratingIdx = headers.findIndex(h => /оценк|rating|звезд|балл/i.test(h));
+                let textIdx = headers.findIndex(h => /текст|отзыв|комментарий|text|review|comment/i.test(h));
+
+                // Если не нашли — используем позиции: 0-время, 1-оценка, 2-имя, 3-текст
                 if (nameIdx === -1) nameIdx = 2;
                 if (ratingIdx === -1) ratingIdx = 1;
                 if (textIdx === -1) textIdx = 3;
@@ -92,9 +95,11 @@
                 for (let i = 1; i < rows.length; i++) {
                     const cols = rows[i].split(',').map(c => c.replace(/"/g, '').trim());
                     if (cols.length < 4) continue;
+                    
                     const name = cols[nameIdx] || 'Аноним';
                     const rating = parseInt(cols[ratingIdx]) || 5;
                     const text = cols[textIdx] || '';
+                    
                     const stars = '★'.repeat(Math.min(5, Math.max(0, rating))) + '☆'.repeat(Math.max(0, 5 - Math.min(5, Math.max(0, rating))));
                     let dateStr = 'сегодня';
                     if (cols[0] && cols[0].includes('/')) {
@@ -103,6 +108,7 @@
                             if (parts.length === 3) dateStr = `${parts[1]}.${parts[0]}.${parts[2].slice(0, 2)}`;
                         } catch(e) {}
                     }
+
                     html += `
                         <div class="review">
                             <div class="review-header">
@@ -121,7 +127,7 @@
         }
         function escapeHtml(text) { if (!text) return ''; const d = document.createElement('div'); d.textContent = text; return d.innerHTML; }
 
-        // ===== НАКЛОН И ГИРОСКОП =====
+        // ===== НАКЛОН + ГИРОСКОП =====
         (function() {
             const card = document.getElementById('card');
             if (!card) return;
