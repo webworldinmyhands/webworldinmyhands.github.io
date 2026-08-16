@@ -153,6 +153,21 @@
             font-size: 16px;
         }
 
+        .debug-box {
+            background: #111;
+            border: 1px solid #333;
+            border-radius: 8px;
+            padding: 12px;
+            margin: 12px 0;
+            font-family: monospace;
+            font-size: 12px;
+            color: #8b949e;
+            max-height: 300px;
+            overflow: auto;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+
         @media (max-width: 600px) {
             .container { padding: 28px 20px; }
             h1 { font-size: 28px; }
@@ -169,6 +184,10 @@
             <div class="loading">⏳ Загрузка отзывов...</div>
         </div>
 
+        <div id="debugContainer">
+            <div class="debug-box" id="debugOutput">🔍 Ожидание данных...</div>
+        </div>
+
         <div style="margin-top: 20px;">
             <a href="leave-review.html" class="btn">✍️ Оставить отзыв</a>
             <a href="index.html" class="btn btn-secondary">← На главную</a>
@@ -183,39 +202,66 @@
         // ===== ТВОЯ ССЫЛКА НА ОПУБЛИКОВАННУЮ ТАБЛИЦУ =====
         const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSCB5wBSJNEhGREiRZzGHoCKfQrs34LzqcWK-31p5WcZnk_AUYhfmjH77aVnl3GFt0TaQAcvgIxz8ls/pub?gid=1662011496&single=true&output=csv';
 
+        function debugLog(message) {
+            const output = document.getElementById('debugOutput');
+            output.textContent += message + '\n';
+        }
+
         async function loadReviews() {
             const container = document.getElementById('reviewsContainer');
+            const debug = document.getElementById('debugOutput');
+            debug.textContent = '';
+
             container.innerHTML = '<div class="loading">⏳ Загрузка отзывов...</div>';
 
             try {
+                debugLog('=== НАЧАЛО ЗАГРУЗКИ ===');
+                debugLog('Ссылка: ' + CSV_URL);
+
                 const response = await fetch(CSV_URL);
+                debugLog('Статус ответа: ' + response.status);
+
                 if (!response.ok) {
                     container.innerHTML = `<div class="error-msg">❌ Ошибка HTTP: ${response.status}</div>`;
+                    debugLog('❌ Ошибка HTTP: ' + response.status);
                     return;
                 }
 
                 const csvText = await response.text();
+                debugLog('Длина CSV: ' + csvText.length + ' символов');
+                debugLog('Первые 500 символов:\n' + csvText.substring(0, 500));
+
                 if (!csvText || csvText.trim() === '') {
                     container.innerHTML = '<div class="empty">📭 Пока нет отзывов. Будьте первым!</div>';
+                    debugLog('❌ CSV пустой');
                     return;
                 }
 
                 const rows = csvText.split('\n').filter(row => row.trim() !== '');
+                debugLog('Количество строк: ' + rows.length);
+
                 if (rows.length < 2) {
                     container.innerHTML = '<div class="empty">📭 Пока нет отзывов. Будьте первым!</div>';
+                    debugLog('❌ Только заголовки, данных нет');
                     return;
                 }
 
                 const headers = rows[0].split(',').map(h => h.replace(/"/g, '').trim());
+                debugLog('Заголовки: ' + JSON.stringify(headers));
+
                 const nameIndex = headers.findIndex(h => h.toLowerCase().includes('имя') || h.toLowerCase().includes('name'));
                 const ratingIndex = headers.findIndex(h => h.toLowerCase().includes('оценк') || h.toLowerCase().includes('rating'));
                 const textIndex = headers.findIndex(h => h.toLowerCase().includes('текст') || h.toLowerCase().includes('text') || h.toLowerCase().includes('отзыв'));
+
+                debugLog('Индексы: name=' + nameIndex + ', rating=' + ratingIndex + ', text=' + textIndex);
 
                 let reviewsHTML = '';
                 let reviewCount = 0;
 
                 for (let i = 1; i < rows.length; i++) {
                     const cols = rows[i].split(',').map(c => c.replace(/"/g, '').trim());
+                    debugLog('Строка ' + i + ': ' + JSON.stringify(cols));
+
                     if (cols.length < 3) continue;
 
                     let name, rating, text;
@@ -233,14 +279,6 @@
 
                     const stars = '★'.repeat(Math.min(5, Math.max(0, rating))) + '☆'.repeat(Math.max(0, 5 - Math.min(5, Math.max(0, rating))));
                     let dateStr = 'сегодня';
-                    if (cols[0] && cols[0].includes('/')) {
-                        try {
-                            const dateParts = cols[0].split('/');
-                            if (dateParts.length === 3) {
-                                dateStr = `${dateParts[1]}.${dateParts[0]}.${dateParts[2].slice(0, 2)}`;
-                            }
-                        } catch (e) {}
-                    }
 
                     reviewsHTML += `
                         <div class="review">
@@ -255,11 +293,18 @@
                     reviewCount++;
                 }
 
-                container.innerHTML = reviewsHTML || '<div class="empty">📭 Пока нет отзывов. Будьте первым!</div>';
+                debugLog('✅ Обработано отзывов: ' + reviewCount);
+
+                if (reviewsHTML) {
+                    container.innerHTML = reviewsHTML;
+                } else {
+                    container.innerHTML = '<div class="empty">📭 Пока нет отзывов. Будьте первым!</div>';
+                }
 
             } catch (error) {
                 console.error('Ошибка:', error);
-                container.innerHTML = `<div class="error-msg">❌ Не удалось загрузить отзывы. ${error.message}</div>`;
+                debugLog('❌ ОШИБКА: ' + error.message);
+                container.innerHTML = `<div class="error-msg">❌ Ошибка: ${error.message}</div>`;
             }
         }
 
