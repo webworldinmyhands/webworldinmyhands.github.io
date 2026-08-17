@@ -6,6 +6,7 @@
     <title>Отзывы — FunPay Helper</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
+
         body {
             font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
             min-height: 100vh;
@@ -16,6 +17,7 @@
             background: #0a0a0a;
             perspective: 800px;
         }
+
         .container {
             max-width: 820px;
             width: 100%;
@@ -26,24 +28,133 @@
             transform: rotateX(0deg) rotateY(0deg);
             will-change: transform;
         }
-        h1 { font-size: 38px; font-weight: 700; color: #ffffff; margin-bottom: 8px; transform: translateZ(20px); }
-        .sub { font-size: 18px; color: #aaaaaa; margin-bottom: 32px; border-left: 3px solid #38bdf8; padding-left: 20px; transform: translateZ(10px); }
-        .review { background: #111; padding: 16px 20px; border-radius: 12px; margin-bottom: 14px; border-left: 4px solid #38bdf8; transform: translateZ(5px); }
-        .review-header { display: flex; justify-content: space-between; align-items: center; }
-        .reviewer-name { font-weight: 600; color: #d4d4ff; }
-        .review-date { color: #666; font-size: 13px; }
-        .stars { color: #ffd700; font-size: 18px; letter-spacing: 2px; margin: 6px 0 4px; }
-        .review-text { color: #bbb; margin: 8px 0 0 0; line-height: 1.5; padding-top: 6px; border-top: 1px solid #2a2a2a; }
-        .btn { display: inline-block; margin: 20px 10px 10px 0; background: #38bdf8; border: none; color: #0a0a0a; padding: 10px 24px; border-radius: 40px; text-decoration: none; font-weight: 600; transition: 0.2s; transform: translateZ(5px); }
-        .btn:hover { background: #4ac5ff; transform: translateZ(15px); }
-        .btn-secondary { background: #1a1a1a; border: 1px solid #333; color: #e0e0e0; }
-        .btn-secondary:hover { background: #2a2a2a; border-color: #38bdf8; }
-        .footer { border-top: 1px solid #1a1a1a; padding-top: 24px; margin-top: 30px; font-size: 14px; color: #555; text-align: center; }
-        .footer a { color: #777; text-decoration: none; transition: 0.2s; }
-        .footer a:hover { color: #38bdf8; }
-        .loading { text-align: center; color: #888; padding: 30px; font-size: 16px; }
-        .empty { text-align: center; color: #666; padding: 30px; font-size: 16px; }
-        .error-msg { text-align: center; color: #f85149; padding: 30px; font-size: 16px; }
+
+        h1 {
+            font-size: 38px;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 8px;
+            transform: translateZ(20px);
+        }
+
+        .sub {
+            font-size: 18px;
+            color: #aaaaaa;
+            margin-bottom: 32px;
+            border-left: 3px solid #38bdf8;
+            padding-left: 20px;
+            transform: translateZ(10px);
+        }
+
+        .review {
+            background: #111;
+            padding: 16px 20px;
+            border-radius: 12px;
+            margin-bottom: 14px;
+            border-left: 4px solid #38bdf8;
+            transform: translateZ(5px);
+        }
+
+        .review-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .reviewer-name {
+            font-weight: 600;
+            color: #d4d4ff;
+        }
+
+        .review-date {
+            color: #666;
+            font-size: 13px;
+        }
+
+        .stars {
+            color: #ffd700;
+            font-size: 18px;
+            letter-spacing: 2px;
+            margin: 6px 0 4px;
+        }
+
+        .review-text {
+            color: #bbb;
+            margin: 8px 0 0 0;
+            line-height: 1.5;
+            padding-top: 6px;
+            border-top: 1px solid #2a2a2a;
+        }
+
+        .btn {
+            display: inline-block;
+            margin: 20px 10px 10px 0;
+            background: #38bdf8;
+            border: none;
+            color: #0a0a0a;
+            padding: 10px 24px;
+            border-radius: 40px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: 0.2s;
+            transform: translateZ(5px);
+        }
+
+        .btn:hover {
+            background: #4ac5ff;
+            transform: translateZ(15px);
+        }
+
+        .btn-secondary {
+            background: #1a1a1a;
+            border: 1px solid #333;
+            color: #e0e0e0;
+        }
+
+        .btn-secondary:hover {
+            background: #2a2a2a;
+            border-color: #38bdf8;
+        }
+
+        .footer {
+            border-top: 1px solid #1a1a1a;
+            padding-top: 24px;
+            margin-top: 30px;
+            font-size: 14px;
+            color: #555;
+            text-align: center;
+        }
+
+        .footer a {
+            color: #777;
+            text-decoration: none;
+            transition: 0.2s;
+        }
+        .footer a:hover {
+            color: #38bdf8;
+        }
+
+        .loading {
+            text-align: center;
+            color: #888;
+            padding: 30px;
+            font-size: 16px;
+        }
+
+        .empty {
+            text-align: center;
+            color: #666;
+            padding: 30px;
+            font-size: 16px;
+        }
+
+        .error-msg {
+            text-align: center;
+            color: #f85149;
+            padding: 30px;
+            font-size: 16px;
+        }
+
         @media (max-width: 600px) {
             .container { padding: 28px 20px; }
             h1 { font-size: 28px; }
@@ -55,57 +166,66 @@
     <div class="container" id="card">
         <h1>⭐ Отзывы</h1>
         <p class="sub">Что говорят пользователи о FunPay Helper</p>
-        <div id="reviewsContainer"><div class="loading">⏳ Загрузка отзывов...</div></div>
+
+        <div id="reviewsContainer">
+            <div class="loading">⏳ Загрузка отзывов...</div>
+        </div>
+
         <div style="margin-top: 20px;">
             <a href="leave-review.html" class="btn">✍️ Оставить отзыв</a>
             <a href="index.html" class="btn btn-secondary">← На главную</a>
         </div>
+
         <div class="footer">
             © 2025 — FunPay Helper &middot; <a href="#">GitHub</a> &middot; <a href="#">Discord</a>
         </div>
     </div>
+
     <script>
+        // ===== ССЫЛКА НА ТАБЛИЦУ =====
         const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSCB5wBSJNEhGREiRZzGHoCKfQrs34LzqcWK-31p5WcZnk_AUYhfmjH77aVnl3GFt0TaQAcvgIxz8ls/pub?gid=2002771560&single=true&output=csv';
 
         async function loadReviews() {
             const container = document.getElementById('reviewsContainer');
             container.innerHTML = '<div class="loading">⏳ Загрузка отзывов...</div>';
+
             try {
                 const response = await fetch(CSV_URL);
-                if (!response.ok) { container.innerHTML = `<div class="error-msg">❌ Ошибка HTTP: ${response.status}</div>`; return; }
+                if (!response.ok) {
+                    container.innerHTML = `<div class="error-msg">❌ Ошибка HTTP: ${response.status}</div>`;
+                    return;
+                }
+
                 const csvText = await response.text();
-                if (!csvText || csvText.trim() === '') { container.innerHTML = '<div class="empty">📭 Пока нет отзывов. Будьте первым!</div>'; return; }
+                if (!csvText || csvText.trim() === '') {
+                    container.innerHTML = '<div class="empty">📭 Пока нет отзывов. Будьте первым!</div>';
+                    return;
+                }
+
                 const rows = csvText.split('\n').filter(row => row.trim() !== '');
-                if (rows.length < 2) { container.innerHTML = '<div class="empty">📭 Пока нет отзывов. Будьте первым!</div>'; return; }
+                if (rows.length < 2) {
+                    container.innerHTML = '<div class="empty">📭 Пока нет отзывов. Будьте первым!</div>';
+                    return;
+                }
 
-                // Парсим заголовки
-                const headers = rows[0].split(',').map(h => h.replace(/"/g, '').trim());
-                
-                // Ищем индексы по названиям колонок
-                let nameIdx = headers.findIndex(h => /имя|name|ник|пользователь/i.test(h));
-                let ratingIdx = headers.findIndex(h => /оценк|rating|звезд|балл/i.test(h));
-                let textIdx = headers.findIndex(h => /текст|отзыв|комментарий|text|review|comment/i.test(h));
-
-                // Если не нашли — используем позиции: 0-время, 1-оценка, 2-имя, 3-текст
-                if (nameIdx === -1) nameIdx = 2;
-                if (ratingIdx === -1) ratingIdx = 1;
-                if (textIdx === -1) textIdx = 3;
-
+                // === ПРАВИЛЬНЫЙ ПАРСИНГ ===
                 let html = '';
                 for (let i = 1; i < rows.length; i++) {
                     const cols = rows[i].split(',').map(c => c.replace(/"/g, '').trim());
                     if (cols.length < 4) continue;
-                    
-                    const name = cols[nameIdx] || 'Аноним';
-                    const rating = parseInt(cols[ratingIdx]) || 5;
-                    const text = cols[textIdx] || '';
-                    
+
+                    const name = cols[2] || 'Аноним';        // 3-я колонка (индекс 2) — имя
+                    const rating = parseInt(cols[1]) || 5;   // 2-я колонка (индекс 1) — оценка
+                    const text = cols[3] || '';              // 4-я колонка (индекс 3) — ТЕКСТ ОТЗЫВА
+
                     const stars = '★'.repeat(Math.min(5, Math.max(0, rating))) + '☆'.repeat(Math.max(0, 5 - Math.min(5, Math.max(0, rating))));
                     let dateStr = 'сегодня';
                     if (cols[0] && cols[0].includes('/')) {
                         try {
                             const parts = cols[0].split('/');
-                            if (parts.length === 3) dateStr = `${parts[1]}.${parts[0]}.${parts[2].slice(0, 2)}`;
+                            if (parts.length === 3) {
+                                dateStr = `${parts[1]}.${parts[0]}.${parts[2].slice(0, 2)}`;
+                            }
                         } catch(e) {}
                     }
 
@@ -120,44 +240,79 @@
                         </div>
                     `;
                 }
+
                 container.innerHTML = html || '<div class="empty">📭 Пока нет отзывов. Будьте первым!</div>';
+
             } catch (error) {
-                container.innerHTML = `<div class="error-msg">❌ Ошибка: ${error.message}</div>`;
+                console.error('Ошибка:', error);
+                container.innerHTML = `<div class="error-msg">❌ Не удалось загрузить отзывы. ${error.message}</div>`;
             }
         }
-        function escapeHtml(text) { if (!text) return ''; const d = document.createElement('div'); d.textContent = text; return d.innerHTML; }
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
 
         // ===== НАКЛОН + ГИРОСКОП =====
         (function() {
             const card = document.getElementById('card');
             if (!card) return;
-            let isMobile = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+
+            let isMobile = false;
+            if (/Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+                isMobile = true;
+            }
+
+            // ===== ПК =====
             if (!isMobile) {
                 const rect = card.getBoundingClientRect();
-                const cx = rect.left + rect.width/2, cy = rect.top + rect.height/2;
-                document.addEventListener('mousemove', e => {
-                    const dx = (e.clientX - cx) / rect.width, dy = (e.clientY - cy) / rect.height;
-                    card.style.transform = `rotateX(${-dy*5}deg) rotateY(${dx*5}deg)`;
+                const centerX = rect.left + rect.width / 2;
+                const centerY = rect.top + rect.height / 2;
+
+                document.addEventListener('mousemove', (e) => {
+                    const deltaX = (e.clientX - centerX) / rect.width;
+                    const deltaY = (e.clientY - centerY) / rect.height;
+                    card.style.transform = `rotateX(${-deltaY * 5}deg) rotateY(${deltaX * 5}deg)`;
                 });
-                document.addEventListener('mouseleave', () => { card.style.transform = 'rotateX(0deg) rotateY(0deg)'; });
+
+                document.addEventListener('mouseleave', () => {
+                    card.style.transform = 'rotateX(0deg) rotateY(0deg)';
+                });
             }
+
+            // ===== МОБИЛЬНЫЙ: ГИРОСКОП =====
             if (isMobile) {
-                let sx=0, sy=0, lf=0.08;
-                const handler = e => {
-                    let b = e.beta || 0, g = e.gamma || 0, max=20;
-                    let tx = Math.max(-max, Math.min(max, b*0.35)), ty = Math.max(-max, Math.min(max, g*0.5));
-                    sx += (tx - sx) * lf; sy += (ty - sy) * lf;
-                    card.style.transform = `rotateX(${-sx}deg) rotateY(${sy}deg)`;
-                };
+                let smoothX = 0, smoothY = 0;
+                const lerpFactor = 0.08;
+
+                function handleOrientation(event) {
+                    let beta = event.beta || 0;
+                    let gamma = event.gamma || 0;
+                    const maxAngle = 20;
+                    const targetX = Math.max(-maxAngle, Math.min(maxAngle, beta * 0.35));
+                    const targetY = Math.max(-maxAngle, Math.min(maxAngle, gamma * 0.5));
+                    smoothX += (targetX - smoothX) * lerpFactor;
+                    smoothY += (targetY - smoothY) * lerpFactor;
+                    card.style.transform = `rotateX(${-smoothX}deg) rotateY(${smoothY}deg)`;
+                }
+
                 if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
                     document.addEventListener('touchstart', () => {
-                        DeviceOrientationEvent.requestPermission().then(r => { if (r === 'granted') window.addEventListener('deviceorientation', handler); }).catch(console.error);
+                        DeviceOrientationEvent.requestPermission().then(response => {
+                            if (response === 'granted') {
+                                window.addEventListener('deviceorientation', handleOrientation);
+                            }
+                        }).catch(console.error);
                     }, { once: true });
                 } else {
-                    window.addEventListener('deviceorientation', handler);
+                    window.addEventListener('deviceorientation', handleOrientation);
                 }
             }
         })();
+
         loadReviews();
     </script>
 </body>
